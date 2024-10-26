@@ -14,30 +14,9 @@ jobs:
         run: curl https://raw.githubusercontent.com/akhilnarang/scripts/master/setup/android_build_env.sh | bash -
       - name: "Clone repo, sync, and build"
         run: repo init -u https://github.com/pa-gr/kernel_manifest -b uvite-xiaomi-sm8450 --depth=1 && repo sync && ./kernel_platform/build/build.sh -t -c && mv aospa-gki-marble-*.zip aospa-gki-kernel.zip
-      - name: Generate release tag
-        id: tag
-        run: echo "::set-output name=release_tag::AOSPA_STOCK_GKI_$(date +"%Y.%m.%d")"
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Test Report
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
         with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: /home/runner/work/aospa-gki-kernel-build/aospa-gki-kernel-build/aospa-gki-kernel.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  build-ksu:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Setup build environment"
-        run: curl https://raw.githubusercontent.com/akhilnarang/scripts/master/setup/android_build_env.sh | bash -
-      - name: "Clone repo, sync, and build"
-        run: repo init -u https://github.com/pa-gr/kernel_manifest -b uvite-xiaomi-sm8450 --depth=1 && repo sync && cd common && curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash - && cd ../ && ./kernel_platform/build/build.sh -t -c && mv aospa-gki-marble-*.zip aospa-gki-kernel-ksu.zip
-      - name: Generate release tag
-        id: tag
-        run: echo "::set-output name=release_tag::AOSPA_KSU_GKI_$(date +"%Y.%m.%d")"
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: /home/runner/work/aospa-gki-kernel-build/aospa-gki-kernel-build/aospa-gki-kernel-ksu.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          name: out1
+          path: /home/runner/work/aospa-gki-kernel-build/aospa-gki-kernel-build/t.txt
